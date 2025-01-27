@@ -26,8 +26,14 @@
 
 using namespace tinyrv;
 
+/* Elements are grouped together in the "Tiny RISC-V" namespace 
+ * to create a logical structure within the entire project. This
+ * namespace is used to define details of the RISC-V 32-I base
+ * extension. 
+ */
 namespace tinyrv {
 
+// Each opcode in RV32-I has a corresponding instr. type  
 static const std::unordered_map<Opcode, InstType> sc_instTable = {
   {Opcode::R,     InstType::R},
   {Opcode::L,     InstType::I},
@@ -42,7 +48,10 @@ static const std::unordered_map<Opcode, InstType> sc_instTable = {
   {Opcode::FENCE, InstType::I},
 };
 
+
 enum Constants {
+  
+  // bit-widths of certain instr. fields
   width_opcode= 7,
   width_reg   = 5,
   width_func3 = 3,
@@ -50,6 +59,12 @@ enum Constants {
   width_i_imm = 12,
   width_j_imm = 20,
 
+  /* 
+   * Step 1 of decoding a specific field out of an instruction
+   * is shifting all the bits over until the field starts at the LSB
+   *
+   * The amounts we need to shift by for each field are made below. 
+   */
   shift_opcode= 0,
   shift_rd    = width_opcode,
   shift_func3 = shift_rd + width_reg,
@@ -58,6 +73,12 @@ enum Constants {
   shift_func2 = shift_rs2 + width_reg,
   shift_func7 = shift_rs2 + width_reg,
 
+  /*
+   * Step 2 of decoding is using a bit-mask to extract the bits of
+   * the field we need.
+   *
+   * The bit masks we need for each field are made below. 
+   */
   mask_opcode = (1 << width_opcode)- 1,
   mask_reg    = (1 << width_reg)   - 1,
   mask_func3  = (1 << width_func3) - 1,
@@ -66,6 +87,10 @@ enum Constants {
   mask_j_imm  = (1 << width_j_imm) - 1,
 };
 
+/*
+ * Returns the string mnemonic of an instruction
+ * based on its opcode and function fields
+ */
 static const char* op_string(const Instr &instr) {
   auto opcode = instr.getOpcode();
   auto func3  = instr.getFunc3();
@@ -163,12 +188,20 @@ static const char* op_string(const Instr &instr) {
   }
 }
 
+/*
+ * Output the complete string representation of an instruction
+ */
 std::ostream &operator<<(std::ostream &os, const Instr &instr) {
   os << op_string(instr);
   int sep = 0;
 
+  // Execution flags specify the behaviors of the instruction
   auto exec_flags = instr.getExeFlags();
 
+  /*
+   * Output if the instruction uses a destination register, 
+   * source registers, or an immediate value.
+   */
   if (exec_flags.use_rd) {
     if (sep++ != 0) { os << ", "; } else { os << " "; }
     os << "x" << std::dec << instr.getRd();
@@ -189,6 +222,10 @@ std::ostream &operator<<(std::ostream &os, const Instr &instr) {
     os << "0x" << std::hex << instr.getImm();
   }
 
+  /*
+   * Output the instruction's alu operation, branch 
+   * operation and execution flags
+   */
   os << std::dec << ", alu_op=" << instr.getAluOp()
       << ", br_op=" << instr.getBrOp()
      << ", exe_flags=" << instr.getExeFlags();
