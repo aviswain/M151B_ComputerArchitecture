@@ -23,7 +23,7 @@ Refer to **TODO** entries inside decode.cpp for where to make changes.
 
 ## Part 2 : Execute
 In this part, you will complete the implementation of the execute logic.
-We recommend not adding new types to the codebase, the exiting types arer sufficient to complete the project.
+We recommend not adding new types to the codebase, the existing types are sufficient to complete the project.
 Refer to **TODO** entries inside execute.cpp for where to make changes.
 
 ## Part 3 : Timing Simulation
