@@ -78,7 +78,9 @@ enum Constants {
   shift_i_imm = shift_rs2,
   shift_u_imm = shift_func3,
   shift_j_imm = shift_func3,
-  
+  shift_s_imm_4_0 = shift_rd,
+  shift_s_imm_11_5 = shift_func7,
+
   /*
    * Step 2 of decoding is using a bit-mask to extract the bits of
    * the field we need.
@@ -94,7 +96,8 @@ enum Constants {
 
   // mask constants I made
   mask_u_imm = mask_j_imm,
-
+  mask_s_imm_4_0 = mask_reg,
+  mask_s_imm_11_5 = mask_func7,
 };
 
 /*
@@ -370,7 +373,21 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    // CHECK:
+
+    // extract the immediate values out of instruction
+    uint32_t imm_4_0 = (instr_code >> shift_s_imm_4_0) & mask_s_imm_4_0;
+    uint32_t imm_11_5 = (instr_code >> shift_s_imm_11_5) & mask_s_imm_11_5;
+
+    // rearrange the immediate according to the S-type format
+    imm = (imm_11_5 << 5) | imm_4_0;
+
+    // sign extend
+    uint32_t sign_bit = imm & 0x800;
+    if (sign_bit) {
+      imm |= 0xFFFFF000;
+    }
+
   } break;
 
   case InstType::B: {
