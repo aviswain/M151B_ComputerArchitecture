@@ -372,10 +372,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    /* TODO:
-     * Extract the immediate field and fill [31:12] bits with
-     * extracted value and [11:0] with zeroes 
-     */
+    // TODO: Complete? 
     imm = (instr_code >> shift_u_imm) & mask_u_imm;
     imm = imm << 12;
   } break;
@@ -384,13 +381,21 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    /* TODO:
-     *
-     */
-    imm = (instr_code >> shift_j_imm) & mask_j_imm;
-    uint32_t imm_19to12 = imm & mask_func7;
-    uint32_t imm_20 = 
+    // TODO:
 
+    // extract the immediate out of the instruction 
+    imm = (instr_code >> shift_u_imm) & mask_u_imm;
+
+    // rearrange the immediate according to the J-type format
+    uint32_t imm_20 = (imm >> 19) & 0x1;
+    uint32_t imm_19_12 = imm & 0xFF;
+    uint32_t imm_11 = (imm >> 8) & 0x1;
+    uint32_t imm_10_1 = (imm >> 9) & 0x3FF;
+
+    imm = (imm_20 << 19) | (imm_19_12 << 11) | (imm_11 << 10) | imm_10_1;
+
+    // sign extend to 32 bits
+    imm = (uint32_t) ((int32_t) imm << 11) >> 11; 
   } break;
 
   default:
