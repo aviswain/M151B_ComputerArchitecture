@@ -26,7 +26,8 @@
 
 using namespace tinyrv;
 
-/* Elements are grouped together in the "Tiny RISC-V" namespace 
+/*
+ * Elements are grouped together in the "Tiny RISC-V" namespace 
  * to create a logical structure within the entire project. This
  * namespace is used to define details of the RISC-V 32-I base
  * extension. 
@@ -73,6 +74,9 @@ enum Constants {
   shift_func2 = shift_rs2 + width_reg,
   shift_func7 = shift_rs2 + width_reg,
 
+  // shift constants I made for myself
+  shift_i_imm = shift_rs2
+  
   /*
    * Step 2 of decoding is using a bit-mask to extract the bits of
    * the field we need.
@@ -199,7 +203,7 @@ std::ostream &operator<<(std::ostream &os, const Instr &instr) {
   auto exec_flags = instr.getExeFlags();
 
   /*
-   * Output if the instruction uses a destination register, 
+   * Output the instruction's use of a destination register, 
    * source registers, or an immediate value.
    */
   if (exec_flags.use_rd) {
@@ -236,6 +240,26 @@ std::ostream &operator<<(std::ostream &os, const Instr &instr) {
 }
 
 std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
+
+  /*
+   * STEP 1: Parallel extraction of various instruction fields. 
+   * --------------------------------------------------------------------------
+   * Extract the following fields:
+
+   *   - opcode, opcode
+   *   - function 1, func3
+   *   - function 2, func7
+   *   - dest register, rd
+   *   - src register 1, rs1
+   *   - src register 2, rs2
+   * 
+   * Although not all fields will be used based on instruction type, extracting
+   * the fields in parallel is better for energy efficiency because it 
+   * reduces sequential logic.
+   *
+   * Insight: Activating decoders for unused fields and running them in 
+   * parallel > understanding instruction and only using needed decoders.
+   */
   auto instr = std::make_shared<Instr>();
   auto opcode = Opcode((instr_code >> shift_opcode) & mask_opcode);
 
@@ -246,17 +270,28 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
   auto rs1 = (instr_code >> shift_rs1) & mask_reg;
   auto rs2 = (instr_code >> shift_rs2) & mask_reg;
 
+  /*
+   * STEP 2: Get the instruction type
+   * --------------------------------------------------------------------------
+   * If the opcode is in the instruction table, get the instruction type.
+   * Otherwise it is not supported by the decoder.
+   */ 
   auto op_it = sc_instTable.find(opcode);
   if (op_it == sc_instTable.end()) {
     std::cout << std::hex << "Error: invalid opcode: 0x" << static_cast<int>(opcode) << std::endl;
     return nullptr;
   }
 
+  /*
+   * STEP 3: Decode instruction based on type
+   * --------------------------------------------------------------------------
+   * Set appropriate execution flags, immediate value, ALU operation, and/or
+   * branch operation based on the instruction type and opcode.
+   */
+
   ExeFlags exe_flags;
   memset(&exe_flags, 0, sizeof(ExeFlags));
   uint32_t imm = 0x0;
-
-  // instruction type decoding
 
   auto inst_type = op_it->second;
   switch (inst_type) {
@@ -273,7 +308,9 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      imm = // TODO:
+      // TODO: completed?
+      imm = (instr_code >> shift_i_imm) & mask_i_imm; 
+      // sign-ext?
       break;
     case Opcode::L:
     case Opcode::JALR: {
