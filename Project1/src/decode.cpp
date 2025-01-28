@@ -75,9 +75,9 @@ enum Constants {
   shift_func7 = shift_rs2 + width_reg,
 
   // shift constants I made
-  shift_i_imm = shift_rs2;
-  shift_u_imm = shift_func3;
-  shift_j_imm = shift_func3;
+  shift_i_imm = shift_rs2,
+  shift_u_imm = shift_func3,
+  shift_j_imm = shift_func3,
   
   /*
    * Step 2 of decoding is using a bit-mask to extract the bits of
@@ -93,7 +93,7 @@ enum Constants {
   mask_j_imm  = (1 << width_j_imm) - 1,
 
   // mask constants I made
-  mask_u_imm = mask_j_imm;
+  mask_u_imm = mask_j_imm,
 
 };
 
@@ -314,12 +314,18 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      /* TODO:
-       * Extract the immediate field of the I-type instr. and 
-       * sign extend to fill register size of 32 bits
-       */
-      imm = (instr_code >> shift_i_imm) & mask_i_imm; 
-      imm = (uint32_t) ((int16_t) imm << 4) >> 4;
+      // CHECK:
+
+      // extract immediate out of instr.
+      imm = (instr_code >> shift_i_imm) & mask_i_imm;
+      
+      // sign extend 
+      uint32_t sign_bit = imm & 0x800;
+      imm = (imm << 20) >> 20;
+      if (sign_bit) {
+        imm |= 0xFFFFF000;
+      }
+
       break;
     case Opcode::L:
     case Opcode::JALR: {
@@ -327,12 +333,19 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      /* TODO:
-       * Extract the immediate field of the I-type instr. and 
-       * sign extend to fill register size of 32 bits
-       */
-      imm = (instr_code >> shift_i_imm) & mask_i_imm; 
-      imm = (uint32_t) ((int16_t) imm << 4) >> 4;
+
+      // CHECK:
+
+      // extract immediate out of instr.
+      imm = (instr_code >> shift_i_imm) & mask_i_imm;
+      
+      // sign extend 
+      uint32_t sign_bit = imm & 0x800;
+      imm = (imm << 20) >> 20;
+      if (sign_bit) {
+        imm |= 0xFFFFF000;
+      }
+
     } break;
     case Opcode::SYS: {
       exe_flags.use_imm = 1;
@@ -372,7 +385,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    // TODO: Complete? 
+    // CHECK: 
     imm = (instr_code >> shift_u_imm) & mask_u_imm;
     imm = imm << 12;
   } break;
@@ -381,13 +394,13 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    // TODO:
-
-    // extract the immediate out of the instruction 
-    imm = (instr_code >> shift_u_imm) & mask_u_imm;
+    // CHECK:
+    // extract the immediate out of instruction
+    imm = (instr_code >> shift_j_imm) & mask_j_imm;
 
     // rearrange the immediate according to the J-type format
     uint32_t imm_20 = (imm >> 19) & 0x1;
+
     uint32_t imm_19_12 = imm & 0xFF;
     uint32_t imm_11 = (imm >> 8) & 0x1;
     uint32_t imm_10_1 = (imm >> 9) & 0x3FF;
@@ -395,7 +408,14 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     imm = (imm_20 << 19) | (imm_19_12 << 11) | (imm_11 << 10) | imm_10_1;
 
     // sign extend to 32 bits
-    imm = (uint32_t) ((int32_t) imm << 11) >> 11; 
+    uint32_t sign_bit = imm & 0x80000;
+    imm = (imm << 12) >> 12;
+    if (sign_bit) {
+      imm |= 0xFFF00000;
+    }
+
+    // shift left for empty 0 bit
+    imm = imm << 1;
   } break;
 
   default:
