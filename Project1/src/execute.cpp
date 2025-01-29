@@ -112,6 +112,12 @@ uint32_t Core::alu_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data
   return rd_data;
 }
 
+/*
+ * BRANCH UNIT
+ * ----------------------------------------------------------------------------
+ * Determines if a branch should be taken based on instruction and register
+ * values. Also stores return addresses for jump instructions.
+ */
 uint32_t Core::branch_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data, uint32_t rd_data, uint32_t PC) {
   auto br_op = instr.getBrOp();
 
@@ -122,31 +128,50 @@ uint32_t Core::branch_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_d
     break;
   case BrOp::JAL:
   case BrOp::JALR: {
-    br_taken = // TODO:
+    // CHECK:                 
+    br_taken = true;
     break;
   }
   case BrOp::BEQ: {
-    br_taken = // TODO:
+    // CHECK:
+    if (rs1_data == rs2_data) {
+      br_taken = true;
+    }
     break;
   }
   case BrOp::BNE: {
-    br_taken = // TODO:
+    // CHECK:
+    if (rs1_data != rs2_data) {
+      br_taken = true;
+    }
     break;
   }
   case BrOp::BLT: {
-    br_taken = // TODO:
+    // CHECK:
+    if (static_cast<int32_t>(rs1_data) < static_cast<int32_t>(rs2_data)) {
+      br_taken = true;
+    }
     break;
   }
   case BrOp::BGE: {
-    br_taken = // TODO:
+    // CHECK:
+    if (static_cast<int32_t>(rs1_data) >= static_cast<int32_t>(rs2_data)) {
+      br_taken = true;
+    }
     break;
   }
   case BrOp::BLTU: {
-    br_taken = // TODO:
+    // CHECK:
+    if (rs1_data < rs2_data) {
+      br_taken = true;
+    }
     break;
   }
   case BrOp::BGEU: {
-    br_taken = // TODO:
+    // CHECK:
+    if (rs1_data >= rs2_data) {
+      br_taken = true;
+    }
     break;
   }
   default:
