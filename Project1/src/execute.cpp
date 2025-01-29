@@ -25,6 +25,12 @@
 
 using namespace tinyrv;
 
+/*
+ * Arithmetic Logic Unit
+ * ----------------------------------------------------------------------------
+ * Takes instruction, register values, and program counter and performs the
+ * given operation.
+ */
 uint32_t Core::alu_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data, uint32_t PC) {
   auto exe_flags  = instr.getExeFlags();
   auto alu_op     = instr.getAluOp();
@@ -42,43 +48,61 @@ uint32_t Core::alu_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data
   case AluOp::NONE:
     break;
   case AluOp::ADD: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 + alu_s2;
     break;
   }
   case AluOp::SUB: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 - alu_s2;
     break;
   }
   case AluOp::AND: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 & alu_s2;
     break;
   }
   case AluOp::OR: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 | alu_s2;
     break;
   }
   case AluOp::XOR: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 ^ alu_s2;
     break;
   }
   case AluOp::SLL: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 << alu_s2;
     break;
   }
   case AluOp::SRL: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = alu_s1 >> alus2;
     break;
   }
   case AluOp::SRA: {
-    rd_data = // TODO:
+    // CHECK:
+    rd_data = static_cast<int32_t>(alu_s1) >> alus2;
     break;
   }
   case AluOp::LTI: {
-    rd_data = // TODO:
+    // CHECK:
+    if (static_cast<int32_t>(alu_s1) < static_cast<int32_t>(alu_s2)) {
+      rd_data = 1;
+    } else {
+      rd_data = 0;
+    }
     break;
   }
   case AluOp::LTU: {
-    rd_data = // TODO:
+    // CHECK:
+    if (static_cast<int32_t>(alu_s1) < static_cast<int32_t>(alu_s2)) {
+      rd_data = 1;
+    } else {
+      rd_data = 0;
+    }
     break;
   }
   default:
