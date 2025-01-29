@@ -80,6 +80,8 @@ enum Constants {
   shift_j_imm = shift_func3,
   shift_s_imm_4_0 = shift_rd,
   shift_s_imm_11_5 = shift_func7,
+  shift_b_imm_4_1_11 = shift_rd,
+  shift_b_imm_12_10_5 = shift_func7,
 
   /*
    * Step 2 of decoding is using a bit-mask to extract the bits of
@@ -98,6 +100,8 @@ enum Constants {
   mask_u_imm = mask_j_imm,
   mask_s_imm_4_0 = mask_reg,
   mask_s_imm_11_5 = mask_func7,
+  mask_b_imm_4_1_11 = mask_reg,
+  mask_b_imm_12_10_5 = mask_func7,
 };
 
 /*
@@ -395,7 +399,28 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    // CHECK:
+
+    // extract the immediate values out of instruction
+    uint32_t imm_4_1_11 = (instr_code >> shift_b_imm_4_1_11) & mask_b_imm_4_1_11;
+    uint32_t imm_12_10_5 = (instr_code >> shift_b_imm_12_10_5) & mask_b_imm_12_10_5;
+
+    uint32_t imm_4_1 = (imm_4_1_11 >> 1) & 0xF;
+    uint32_t imm_11 = imm_4_1_11 & 0x1;
+    uint32_t imm_10_5 = imm_12_10_5 & 0x3F;
+    uint32_t imm_12 = (imm_12_10_5 >> 6) & 0x1;
+
+    // rearrange the immediate according to the S-type format but [11:0] instead of [12:1]
+    imm = (imm_12 << 11) | (imm_11 << 10) | (imm_10_5 << 4) | imm_4_1;
+
+    // sign extend
+    uint32_t sign_bit = imm & 0x800;
+    if (sign_bit) {
+      imm |= 0xFFFFF000;
+    }
+
+    // shift left once to return immediate to [12:1]
+    imm = imm << 1;    
   } break;
 
   case InstType::U: {
