@@ -84,7 +84,7 @@ uint32_t Core::alu_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data
   }
   case AluOp::SRA: {
     // CHECK:
-    rd_data = static_cast<int32_t>(alu_s1) >> alus2;
+    rd_data = static_cast<int32_t>(alu_s1) >> alu_s2;
     break;
   }
   case AluOp::LTI: {
