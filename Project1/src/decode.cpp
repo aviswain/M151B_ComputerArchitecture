@@ -472,20 +472,93 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
   switch (opcode) {
   case Opcode::LUI: {
     // RV32I: LUI
-    alu_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::SLL;
     break;
   }
   case Opcode::AUIPC: {
     // RV32I: AUIPC
-    alu_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::ADD;
     exe_flags.alu_s1_PC = 1;
     break;
   }
   case Opcode::R: {
-    alu_op = // TODO:
+    // CHECK:
+
+    switch(func3) {
+      case 0x0:
+        if (func7 == 0x00) {
+          alu_op = AluOp::ADD;
+        } else if (func7 == 0x20) {
+          alu_op = AluOp::SUB;
+        }
+        break;
+      case 0x4:
+        alu_op = AluOp::XOR;
+        break;
+      case 0x6:
+        alu_op = AluOp::OR;
+        break;
+      case 0x7:
+        alu_op = AluOp::AND;
+        break;
+      case 0x1:
+        alu_op = AluOp::SLL;
+        break;
+      case 0x5:
+        if (func7 == 0x00) {
+          alu_op = AluOp::SRL;
+        } else if (func7 == 0x20) {
+          alu_op = AluOp::SRA;
+        }
+        break;
+      case 0x2:
+        alu_op = AluOp::LTI;
+        break;
+      case 0x3:
+        alu_op = AluOp::LTU;
+        break;
+      default:
+        std::cout << std::hex << "Error: invalid func3 value in R-type instruction: 0x" << static_cast<int>(func3) << std::endl;
+    }
   }
   case Opcode::I: {
-    alu_op = // TODO: 
+    // CHECK:
+    switch(func3) {
+      case 0x0:
+        alu_op = AluOp::ADD;
+        break;
+      case 0x4:
+        alu_op = AluOp::XOR;
+        break;
+      case 0x6:
+        alu_op = AluOp::OR;
+        break;
+      case 0x7:
+        alu_op = AluOp::AND;
+        break;
+      case 0x1:
+        if (func7 == 0x00) {
+          AluOp::SLL;
+        }
+        break;
+      case 0x5:
+        if (func7 == 0x00) {
+          alu_op = AluOp::SRL;
+        } else if (func7 == 0x20) {
+          alu_op = AluOp::SRA;
+        }
+        break;
+      case 0x2:
+        alu_op = AluOp::LTI;
+        break;
+      case 0x3:
+        alu_op = AluOp::LTU;
+        break;
+      default:
+        std::cout << std::hex << "Error: invalid func3 value in I-type instruction: 0x" << static_cast<int>(func3) << std::endl;
+    }
   }
   case Opcode::B: {
     exe_flags.alu_s1_PC = 1;
