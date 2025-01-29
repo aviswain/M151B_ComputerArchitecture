@@ -562,8 +562,30 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
   }
   case Opcode::B: {
     exe_flags.alu_s1_PC = 1;
-    alu_op = // TODO:
-    br_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::SUB;
+    switch(func3) {
+      case 0x0:
+        br_op = BrOp::BEQ;
+        break;
+      case 0x1:
+        br_op = BrOp::BNE;
+        break;
+      case 0x4:
+        br_op = BrOp::BLT;
+        break;
+      case 0x5:
+        br_op = BrOp::BGE;
+        break;
+      case 0x6:
+        br_op = BrOp::BLTU;
+        break;
+      case 0x7:
+        br_op = BrOp::BGEU;
+        break;
+      default:
+        std::cout << std::hex << "Error: invalid func3 value in B-type instruction: 0x" << static_cast<int>(func3) << std::endl;
+    }
     break;
   }
   case Opcode::JAL: {
