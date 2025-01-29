@@ -82,6 +82,7 @@ enum Constants {
   shift_s_imm_11_5 = shift_func7,
   shift_b_imm_4_1_11 = shift_rd,
   shift_b_imm_12_10_5 = shift_func7,
+  shift_sys_imm = shift_i_imm,
 
   /*
    * Step 2 of decoding is using a bit-mask to extract the bits of
@@ -102,6 +103,7 @@ enum Constants {
   mask_s_imm_11_5 = mask_func7,
   mask_b_imm_4_1_11 = mask_reg,
   mask_b_imm_12_10_5 = mask_func7,
+  mask_sys_imm = mask_i_imm,
 };
 
 /*
@@ -363,7 +365,8 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
           exe_flags.use_rs1 = 1;
         }
       }
-      imm = // TODO:
+      // CHECK:
+      imm = (instr_code >> shift_sys_imm) & mask_sys_imm;
     } break;
     case Opcode::FENCE:
       break;
@@ -590,24 +593,30 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
   }
   case Opcode::JAL: {
     exe_flags.alu_s1_PC = 1;
-    alu_op = // TODO:
-    br_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::ADD;
+    // CHECK: 
+    br_op = BrOp::JAL; 
     break;
   }
   case Opcode::JALR: {
-    alu_op = // TODO:
-    br_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::ADD;
+    // CHECK:
+    br_op = BrOp::JALR;
     break;
   }
   case Opcode::L: {
     // RV32I: LB, LH, LW, LBU, LHU
-    alu_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::ADD;
     exe_flags.is_load = 1;
     break;
   }
   case Opcode::S: {
     // RV32I: SB, SH, SW
-    alu_op = // TODO:
+    // CHECK:
+    alu_op = AluOp::ADD;
     exe_flags.is_store = 1;
     break;
   }
