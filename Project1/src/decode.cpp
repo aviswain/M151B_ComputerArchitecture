@@ -542,9 +542,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
         alu_op = AluOp::AND;
         break;
       case 0x1:
-        if (func7 == 0x00) {
-          AluOp::SLL;
-        }
+        alu_op = AluOp::SLL;
         break;
       case 0x5:
         if (func7 == 0x00) {
