@@ -54,10 +54,10 @@ uint32_t GShare::predict(uint32_t PC) {
 
   // STEP 4: Find new PC value if branch is taken
   if (predict_taken) {
-
     uint32_t btb_index = (PC >> BTB_shift_) & BTB_mask_;
-    if (
-
+    if (BTB_[btb_index].valid) {
+      next_PC = BTB_[btb_index].br_target;
+    }
   }
 
   DT(3, "*** GShare: predict PC=0x" << std::hex << PC << std::dec
@@ -72,6 +72,24 @@ void GShare::update(uint32_t PC, uint32_t next_PC, bool taken) {
         << ", taken=" << taken);
 
   // TODO:
+  
+  // STEP 1: Update the Branch History Register
+  BHR_ = ((BHR_ << 1) | (taken ? 0b1:0b0)) & BHR_mask_;
+
+  // STEP 2: Update the Pattern History Table
+  uint32_t pht_index = (PC ^ BHR_) & BHR_mask_;
+  uint32_t& entry = PHT_[pht_index];
+  if (taken) {
+    entry = (entry < 3) ? entry + 0b01 : 0b11;
+  } else {
+    entry = (entry > 0) ? entry - 0b01 : 0b00;
+  }
+
+  // STEP 3: Update Branch Target Buffer
+  if (taken) {
+    uint32_t btb_index = (PC >> BTB_shift_) & BTB_mask_;
+    BTB_[btb_index] = {true, PC, next_PC};
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
