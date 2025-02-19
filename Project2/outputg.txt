@@ -1,0 +1,118 @@
+g++ -std=c++11 -Wall -Wextra -Wfatal-errors -fPIC -Wno-maybe-uninitialized -I/home/aviswain/csm151b/Project2 -I/home/aviswain/csm151b/Project2/common -DXLEN_32  -O2 -DNDEBUG /home/aviswain/csm151b/Project2/common/util.cpp /home/aviswain/csm151b/Project2/common/mem.cpp /home/aviswain/csm151b/Project2/src/main.cpp /home/aviswain/csm151b/Project2/src/processor.cpp /home/aviswain/csm151b/Project2/src/core.cpp /home/aviswain/csm151b/Project2/src/decode.cpp /home/aviswain/csm151b/Project2/src/execute.cpp /home/aviswain/csm151b/Project2/src/gshare.cpp  -o /home/aviswain/csm151b/Project2/tinyrv
+make -C tests run-g
+make[1]: Entering directory '/home/aviswain/csm151b/Project2/tests'
+Running rv32ui-p-add.hex..
+PASSED!
+PERF: instrs=500, cycles=523, bpred=53/72
+Running rv32ui-p-addi.hex..
+PASSED!
+PERF: instrs=277, cycles=291, bpred=31/41
+Running rv32ui-p-and.hex..
+PASSED!
+PERF: instrs=520, cycles=543, bpred=42/61
+Running rv32ui-p-andi.hex..
+PASSED!
+PERF: instrs=233, cycles=247, bpred=20/30
+Running rv32ui-p-auipc.hex..
+PASSED!
+PERF: instrs=93, cycles=101, bpred=5/9
+Running rv32ui-p-beq.hex..
+PASSED!
+PERF: instrs=326, cycles=360, bpred=46/76
+Running rv32ui-p-bge.hex..
+PASSED!
+PERF: instrs=344, cycles=387, bpred=46/85
+Running rv32ui-p-bgeu.hex..
+PASSED!
+PERF: instrs=369, cycles=412, bpred=46/85
+Running rv32ui-p-blt.hex..
+PASSED!
+PERF: instrs=326, cycles=360, bpred=46/76
+Running rv32ui-p-bltu.hex..
+PASSED!
+PERF: instrs=351, cycles=385, bpred=46/76
+Running rv32ui-p-bne.hex..
+PASSED!
+PERF: instrs=326, cycles=362, bpred=44/76
+Running rv32ui-p-jal.hex..
+PASSED!
+PERF: instrs=90, cycles=100, bpred=3/9
+Running rv32ui-p-jalr.hex..
+PASSED!
+PERF: instrs=150, cycles=170, bpred=7/23
+Running rv32ui-p-lb.hex..
+PASSED!
+PERF: instrs=288, cycles=304, bpred=31/41
+Running rv32ui-p-lbu.hex..
+PASSED!
+PERF: instrs=288, cycles=304, bpred=31/41
+Running rv32ui-p-lh.hex..
+PASSED!
+PERF: instrs=304, cycles=320, bpred=31/41
+Running rv32ui-p-lhu.hex..
+PASSED!
+PERF: instrs=313, cycles=329, bpred=31/41
+Running rv32ui-p-lui.hex..
+PASSED!
+PERF: instrs=100, cycles=108, bpred=6/10
+Running rv32ui-p-lw.hex..
+PASSED!
+PERF: instrs=318, cycles=334, bpred=31/41
+Running rv32ui-p-or.hex..
+PASSED!
+PERF: instrs=523, cycles=546, bpred=42/61
+Running rv32ui-p-ori.hex..
+PASSED!
+PERF: instrs=240, cycles=254, bpred=20/30
+Running rv32ui-p-sb.hex..
+PASSED!
+PERF: instrs=489, cycles=517, bpred=47/71
+Running rv32ui-p-sh.hex..
+PASSED!
+PERF: instrs=542, cycles=570, bpred=47/71
+Running rv32ui-p-simple.hex..
+PASSED!
+PERF: instrs=76, cycles=83, bpred=1/4
+Running rv32ui-p-sll.hex..
+PASSED!
+PERF: instrs=528, cycles=551, bpred=57/76
+Running rv32ui-p-slli.hex..
+PASSED!
+PERF: instrs=276, cycles=290, bpred=31/41
+Running rv32ui-p-slt.hex..
+PASSED!
+PERF: instrs=494, cycles=517, bpred=53/72
+Running rv32ui-p-slti.hex..
+PASSED!
+PERF: instrs=272, cycles=286, bpred=31/41
+Running rv32ui-p-sltiu.hex..
+PASSED!
+PERF: instrs=272, cycles=286, bpred=31/41
+Running rv32ui-p-sltu.hex..
+PASSED!
+PERF: instrs=494, cycles=517, bpred=53/72
+Running rv32ui-p-sra.hex..
+PASSED!
+PERF: instrs=547, cycles=570, bpred=58/77
+Running rv32ui-p-srai.hex..
+PASSED!
+PERF: instrs=291, cycles=305, bpred=31/41
+Running rv32ui-p-srl.hex..
+PASSED!
+PERF: instrs=541, cycles=564, bpred=58/77
+Running rv32ui-p-srli.hex..
+PASSED!
+PERF: instrs=285, cycles=299, bpred=31/41
+Running rv32ui-p-sub.hex..
+PASSED!
+PERF: instrs=492, cycles=515, bpred=52/71
+Running rv32ui-p-sw.hex..
+PASSED!
+PERF: instrs=549, cycles=577, bpred=47/71
+Running rv32ui-p-xor.hex..
+PASSED!
+PERF: instrs=522, cycles=545, bpred=42/61
+Running rv32ui-p-xori.hex..
+PASSED!
+PERF: instrs=242, cycles=256, bpred=20/30
+make[1]: Leaving directory '/home/aviswain/csm151b/Project2/tests'
