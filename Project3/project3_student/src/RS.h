@@ -38,7 +38,19 @@ public:
 
     void update_operands(const CommonDataBus::data_t& data) {
       // update operands if this RS entry is waiting for them
-      // TODO:
+      // TODO: untested
+
+      // NOTES TO SELF: currently assuming that rs1_index stores the rob_index
+      // it needs if its operand is not ready.
+      if (rs1_index == data.rob_index) {
+        rs1_data = data.result;
+        rs1_index = -1;
+      }
+
+      if (rs2_index == data.rob_index) {
+        rs2_data = data.result;
+        rs2_index = -1;
+      }
     }
   };
 
@@ -48,7 +60,8 @@ public:
 
   bool operands_ready(uint32_t index) const {
     // are all operands ready?
-    // TODO:
+    // TODO: untested
+    return store_.at(index).operands_ready();
   }
 
   const entry_t& get_entry(uint32_t index) const {
