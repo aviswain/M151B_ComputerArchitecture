@@ -41,6 +41,8 @@ public:
   uint32_t predict(uint32_t PC) override;
   void update(uint32_t PC, uint32_t next_PC, bool taken) override;
 
+  void change_default_prediction(uint8_t val);
+
   // TODO: Add your own methods here
 private:
   
@@ -71,7 +73,13 @@ public:
   uint32_t predict(uint32_t PC) override;
   void update(uint32_t PC, uint32_t next_PC, bool taken) override;
 
-  // TODO: extra credit component
+private:
+
+  GShare local_predictor;
+  GShare global_predictor;
+  
+  std::vector<uint8_t> meta_predictor; 
+  uint32_t meta_mask;  
 };
 
 }

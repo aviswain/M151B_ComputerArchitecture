@@ -185,7 +185,15 @@ bool Core::check_data_hazards(const Instr &instr) {
 
   if (!ex_mem_.empty()) {
     auto& ex_data = ex_mem_.data();
-    // TODO: check LDAD instruction data hazards in EX/MEM
+    // CHECK: check LDAD instruction data hazards in EX/MEM
+    if (ex_data.instr->getExeFlags().is_load) {
+      uint32_t load_rd = ex_data.instr->getRd();
+      if ((load_rd != 0) && (ex_data.instr->getExeFlags().use_rd)) {
+        if((exe_flags.use_rs1 && (instr.getRs1() == load_rd)) || (exe_flags.use_rs2 && (instr.getRs2() == load_rd))) {
+          return true;
+        }
+      }
+    }
   }
 
   return false;
@@ -197,13 +205,21 @@ bool Core::data_forwarding(uint32_t reg, uint32_t* data) {
   if (!ex_mem_.empty()) {
     auto& ex_data = ex_mem_.data();
     auto& ex_instr = *ex_data.instr;
-    // TODO: check data forwarding from EX/MEM
+    // CHECK: check data forwarding from EX/MEM
+    if (ex_instr.getExeFlags().use_rd && (ex_instr.getRd() == reg) && (ex_instr.getRd() != 0) && !ex_instr.getExeFlags().is_load) {
+      *data = ex_data.result;
+      forwarded = true;
+    }
   }
 
   if (!forwarded && !mem_wb_.empty()) {
     auto& mem_data = mem_wb_.data();
     auto& mem_instr = *mem_data.instr;
-    // TODO: check data forwarding from MEM/WB
+    // CHECK: check data forwarding from MEM/WB
+    if (mem_instr.getExeFlags().use_rd && (mem_instr.getRd() == reg) && (mem_instr.getRd() != 0)) {
+      *data = mem_data.result;
+      forwarded = true;
+    }
   }
 
   return forwarded;

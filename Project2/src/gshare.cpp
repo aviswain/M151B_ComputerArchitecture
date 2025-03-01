@@ -25,7 +25,7 @@ using namespace tinyrv;
 
 GShare::GShare(uint32_t BTB_size, uint32_t BHR_size)
   : BTB_(BTB_size, BTB_entry_t{false, 0x0, 0x0})
-  , PHT_((1 << BHR_size), 0x0)
+  , PHT_((1 << BHR_size), 0x00)
   , BHR_(0x0)
   , BTB_shift_(log2ceil(BTB_size))
   , BTB_mask_(BTB_size-1)
@@ -91,11 +91,20 @@ void GShare::update(uint32_t PC, uint32_t next_PC, bool taken) {
   }
 }
 
+void GShare::change_default_prediction(uint8_t val) {
+  std::fill(PHT_.begin(), PHT_.end(), val);
+}
 ///////////////////////////////////////////////////////////////////////////////
 
-GSharePlus::GSharePlus(uint32_t BTB_size, uint32_t BHR_size) {
-  (void) BTB_size;
-  (void) BHR_size;
+GSharePlus::GSharePlus(uint32_t BTB_size, uint32_t BHR_size)
+  :local_predictor(BTB_size, BHR_size)
+  ,global_predictor(BTB_size, 12)
+  ,meta_predictor((1 << BHR_size), 0b10)
+  ,meta_mask((1 << BHR_size)-1) {
+  
+  local_predictor.change_default_prediction(0b10);
+    
+  global_predictor.change_default_prediction(0b10);
 }
 
 GSharePlus::~GSharePlus() {
@@ -103,13 +112,16 @@ GSharePlus::~GSharePlus() {
 }
 
 uint32_t GSharePlus::predict(uint32_t PC) {
-  uint32_t next_PC = PC + 4;
-  bool predict_taken = false;
-  (void) PC;
-  (void) next_PC;
-  (void) predict_taken;
+  uint32_t local_prediction = local_predictor.predict(PC);
 
-  // TODO: extra credit component
+  uint32_t global_prediction = global_predictor.predict(PC);
+
+  uint32_t meta_index = (PC >> 2) & meta_mask;
+  uint8_t meta_prediction = meta_predictor[meta_index];
+ 
+  bool use_GShare = (meta_prediction >= 0b10);
+
+  uint32_t next_PC = use_GShare ? local_prediction : global_prediction;
 
   DT(3, "*** GShare+: predict PC=0x" << std::hex << PC << std::dec
         << ", next_PC=0x" << std::hex << next_PC << std::dec
@@ -122,11 +134,28 @@ void GSharePlus::update(uint32_t PC, uint32_t next_PC, bool taken) {
   (void) next_PC;
   (void) taken;
 
+  bool local_prediction = (local_predictor.predict(PC) != PC + 4) ;
+  bool global_prediction = (global_predictor.predict(PC) != PC + 4);
+
+  bool local_correct = (local_prediction == taken);
+  bool global_correct = (global_prediction == taken);
+
+  uint32_t meta_index = (PC >> 2) & meta_mask;
+  uint8_t& meta_prediction = meta_predictor[meta_index];
+
+  if (global_correct && !local_correct) {
+    if (meta_prediction < 3) meta_prediction++;
+  } else if (!global_correct && local_correct) {
+    if (meta_prediction > 0) meta_prediction--;
+  }
+
+  local_predictor.update(PC, next_PC, taken);
+  global_predictor.update(PC, next_PC, taken);
+
   DT(3, "*** GShare+: update PC=0x" << std::hex << PC << std::dec
         << ", next_PC=0x" << std::hex << next_PC << std::dec
         << ", taken=" << taken);
 
-  // TODO: extra credit component
 }
 
 
